@@ -1,0 +1,16 @@
+services:
+  database:
+    image: postgres:16
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=spotify
+      - POSTGRES_USER=yash
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    container_name: spotify_database
+
+volumes:
+  postgres_data:
+    
