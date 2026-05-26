@@ -5,7 +5,8 @@ dotenv.config();
 
 export const envSchema = z.object({
     PORT: z.coerce.number(),
-    NODE_ENV: z.enum(["development","production"])
+    NODE_ENV: z.enum(["development","production"]),
+    DATABASE_URL: z.string()
 });
 
 export type EnvType = z.infer<typeof envSchema>;

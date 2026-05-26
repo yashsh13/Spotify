@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//Model Users
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  username         String   @unique
+  password         String  
+  isVerified       Boolean  @default(false)
+  avatar           String?
+  role             Role     @default(USER)
+  plan             Plan     @default(FREE)
+  createdAt        DateTime @default(now())
+  playlist         Playlist[]
+  downloaded       Downloaded[]
+  listeningHistory ListeningHistory[]
+  subscription     Subscription?
+  payment          Payment[]
+}
+
+//Model Tracks
+
+model Track {
+  id               String   @id @default(uuid())
+  name             String   @unique
+  artistName       String
+  coverPhoto       String? 
+  duration         Int
+  genre            String?
+  playCount        Int      @default(0)
+  audioFile        String   @unique
+  createdAt        DateTime @default(now())
+  playlistTrack    PlaylistTrack[]
+  downloaded       Downloaded[]
+  listeningHistory ListeningHistory[]
+}
+
+//Model Playlist
+
+model Playlist {
+  id             String    @id @default(uuid())
+  name           String
+  userId         String
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id])
+  playlistTrack PlaylistTrack[]
+
+  @@unique([userId,name])
+}
+
+//Model Playlist_Tracks
+
+model PlaylistTrack {
+  playlistId String
+  trackId    String
+  addedAt    DateTime  @default(now())
+  playlist   Playlist  @relation(fields: [playlistId], references: [id])
+  track      Track     @relation(fields: [trackId], references: [id])
+
+  @@id(name: "playtrackId",[playlistId,trackId])
+}
+
+//Model Downloaded
+
+model Downloaded {
+  id           String   @id @default(uuid())
+  userId       String
+  trackId      String
+  downloadedAt DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+  track        Track    @relation(fields: [trackId], references: [id])
+
+  @@unique([userId,trackId])
+}
+
+//Model ListeningHistory
+
+model ListeningHistory {
+  id       String   @id @default(uuid())
+  userId   String
+  trackId  String
+  playedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  track    Track    @relation(fields: [trackId], references: [id])
+}
+
+//Model OTP
+
+model OTP {
+  email     String   @id
+  otp       String 
+  expiresAt DateTime 
+}
+
+//Model Subscription
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+model Subscription {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  status                 SubscriptionStatus   @default(ACTIVE)
+  currentPeriodEnd       DateTime 
+  razorpaySubscriptionId String   @unique
+  createdAt              DateTime @default(now())
+  user                   User     @relation(fields:[userId], references:[id])
+}
+
+//Model Payment
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  userId            String
+  amount            Int 
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  razorpayPaymentId String?       @unique
+  createdAt         DateTime      @default(now())
+  user              User          @relation(fields: [userId], references: [id])
+}
+
+
