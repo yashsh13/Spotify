@@ -1,5 +1,5 @@
-import express, { Express } from "express";
-import parsedEnv from "./config/env";
+import express, { type Express } from "express";
+import parsedEnv from "./config/env.js";
 
 const app: Express = express();
 
