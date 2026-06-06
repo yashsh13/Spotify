@@ -7,7 +7,10 @@ export const envSchema = z.object({
     PORT: z.coerce.number(),
     NODE_ENV: z.enum(["development","production"]),
     DATABASE_URL: z.string(),
-    REDIS_URL: z.string()
+    REDIS_URL: z.string(),
+    ACCESS_TOKEN_SECRET: z.string(),
+    REFRESH_TOKEN_SECRET: z.string(),
+    BCRYPT_SALT_ROUNDS: z.coerce.number()
 });
 
 export type EnvType = z.infer<typeof envSchema>;

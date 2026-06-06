@@ -19,7 +19,6 @@ services:
     volumes:
       - redis_data:/data
     container_name: spotify_cache
-    
 
 volumes:
   postgres_data:

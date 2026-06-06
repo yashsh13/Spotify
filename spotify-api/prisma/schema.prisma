@@ -107,14 +107,6 @@ model ListeningHistory {
   track    Track    @relation(fields: [trackId], references: [id])
 }
 
-//Model OTP
-
-model OTP {
-  email     String   @id
-  otp       String 
-  expiresAt DateTime 
-}
-
 //Model Subscription
 
 enum SubscriptionStatus {
