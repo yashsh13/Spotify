@@ -1,0 +1,1 @@
+export const getOTPKey = (email: string) => `otp:${email}`; 
