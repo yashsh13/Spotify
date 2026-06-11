@@ -36,15 +36,17 @@ export const createUser = async (username: string, email: string, password: stri
     });
 }
 
-export const updateUserByUsername = async (username: string, email: string, password: string) => {
+export const updateUserByUsername = async (username: string, updatedValues: {
+    email?: string,
+    password?: string,
+    isVerified?: boolean,
+    avatar?: string
+}) => {
     return await prismaClient.user.update({
         where: {
             username
         },
-        data: {
-            email,
-            password
-        },
+        data: updatedValues,
         select: {
             id: true,
             email: true,
@@ -56,15 +58,17 @@ export const updateUserByUsername = async (username: string, email: string, pass
     });
 }
 
-export const updateUserByEmail = async (username: string, email: string, password: string) => {
+export const updateUserByEmail = async (email: string, updatedValues: {
+    username?: string,
+    password?: string,
+    isVerified?: boolean,
+    avatar?: string
+}) => {
     return await prismaClient.user.update({
         where: {
             email
         },
-        data: {
-            username,
-            password
-        },
+        data: updatedValues,
         select: {
             id: true,
             email: true,
@@ -87,4 +91,8 @@ export const saveOTPInCache = async (email: string, otp: string) => {
 
 export const deleteOTPFromCache = async (email: string) => {
     return await redisClient.del(getOTPKey(email));
+}
+
+export const getOTPFromCache = async (email: string) => {
+    return await redisClient.get(getOTPKey(email));
 }

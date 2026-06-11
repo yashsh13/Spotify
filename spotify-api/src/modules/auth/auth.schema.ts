@@ -34,6 +34,10 @@ export const logInSchema = z.object({
                 .trim()
 });
 
+export const resendOTPSchema = z.object({
+    email: emailSchema
+})
+
 export const verifyOTPSchema = z.object({
     email: emailSchema,
     otp: z.string()
@@ -53,6 +57,7 @@ export const resetPasswordSchema = z.object({
 
 export type SignUpType = z.infer<typeof signUpSchema>;
 export type LogInType = z.infer<typeof logInSchema>;
+export type ResendOTPType = z.infer<typeof verifyOTPSchema>;
 export type VerifyOTPType = z.infer<typeof verifyOTPSchema>;
 export type ForgotPasswordType = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordType = z.infer<typeof resetPasswordSchema>;

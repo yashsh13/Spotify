@@ -1,4 +1,4 @@
-import type { Request, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { type ZodObject, z } from "zod";
 import { ValidationError } from "../utils/apiError.js";
 
