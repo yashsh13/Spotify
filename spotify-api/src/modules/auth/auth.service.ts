@@ -2,7 +2,8 @@ import { ConflictError, NotFoundError, UnauthorizedError } from "../../utils/api
 import * as repo from "./auth.repository.js";
 import { hashPassword, comparePassword } from "../../helper/bcrypt.js";
 import { sendVerificationMail } from "../../email/emails.js";
-import { createTokens } from "../../helper/jwt.js";
+import { createTokens, verifyRefreshToken } from "../../helper/jwt.js";
+import type { JwtPayload } from "jsonwebtoken";
 
 export const signUp = async (username: string, email: string, password: string) => {
 
@@ -58,9 +59,6 @@ export const resendOTP = async (email: string) => {
 
 export const verifyOTP = async (email: string, inputOTP: string) => {
 
-    const emailExists = await repo.findUserByEmail(email);
-    if(!emailExists) throw new NotFoundError("User");
-
     const otp = await repo.getOTPFromCache(email);
     if(!otp) throw new UnauthorizedError("OTP has expired");
 
@@ -80,11 +78,8 @@ export const logIn = async (email: string, password: string) => {
     const user = await repo.findUserByEmail(email);
     if(!user) throw new NotFoundError("User");
     if(!user.isVerified) {
-        generateAndSendOTP(user.email, user.username);
-        return {
-            accessToken: null,
-            refreshToken: null
-        }
+        await generateAndSendOTP(user.email, user.username);
+        throw new UnauthorizedError("Email unverifed, OTP has been sent");
     };
 
     const validPassword = await comparePassword(password, user.password);
@@ -93,5 +88,24 @@ export const logIn = async (email: string, password: string) => {
     const { accessToken, refreshToken } = createTokens(user.id, user.role);
     await repo.saveRefreshTokenInCache(user.id, refreshToken);
 
-    return { accessToken, refreshToken, user };
+    const { password:_, ...safeUser } = user;
+
+    return { accessToken, refreshToken, user: safeUser };
+}
+
+export const refresh = async (incomingRefreshToken: string) => {
+
+    const decoded = verifyRefreshToken(incomingRefreshToken);
+    if(!decoded) throw new UnauthorizedError("Refresh Token Expired");
+    const userId = (decoded as JwtPayload).userId;
+    const userRole = (decoded as JwtPayload).role;
+
+    const savedRefreshToken = await repo.getRefreshTokenFromCache(userId);
+    if(!savedRefreshToken) throw new UnauthorizedError("Refresh Token Expired");
+    if(incomingRefreshToken !== savedRefreshToken ) throw new UnauthorizedError("Invalid Refresh Token");
+
+    const { accessToken, refreshToken } = createTokens(userId, userRole);
+    await repo.saveRefreshTokenInCache(userId, refreshToken);
+
+    return { accessToken, refreshToken };
 }

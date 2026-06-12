@@ -10,5 +10,6 @@ authRouter.post('/signup', validationMiddleware(signUpSchema), asyncHandler(ctrl
 authRouter.post('/resend-otp', validationMiddleware(resendOTPSchema), asyncHandler(ctrl.resendOTPController));
 authRouter.post('/verify-otp', validationMiddleware(verifyOTPSchema), asyncHandler(ctrl.verifyOTPController));
 authRouter.post('/login', validationMiddleware(logInSchema), asyncHandler(ctrl.LogInController));
+authRouter.post('/refresh', asyncHandler(ctrl.refreshController));
 
 export default authRouter;

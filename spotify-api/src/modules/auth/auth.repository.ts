@@ -18,6 +18,14 @@ export const findUserByUsername = async (username: string) => {
     });
 }
 
+export const findUserById = async (userId: string) => {
+    return await prismaClient.user.findUnique({
+        where: {
+            id: userId
+        }
+    });
+}
+
 export const createUser = async (username: string, email: string, password: string) => {
     return await prismaClient.user.create({
         data: {
@@ -104,4 +112,8 @@ export const saveRefreshTokenInCache = async (userId: string, refreshToken: stri
             value: 60*60*24*30
         }
     });
+}
+
+export const getRefreshTokenFromCache = async (userId: string) => {
+    return await redisClient.get(getRefreshTokenKey(userId));
 }

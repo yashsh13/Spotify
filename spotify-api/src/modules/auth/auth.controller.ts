@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import type { SignUpType, ResendOTPType, VerifyOTPType, LogInType } from "./auth.schema.js";
 import * as svc from "./auth.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
-import parsedEnv from "../../config/env.js";
 
 export const signUpController = async (req: Request, res: Response) => {
     const { username, email, password }: SignUpType = req.body;
@@ -35,8 +34,6 @@ export const LogInController = async (req: Request, res: Response) => {
     const { email, password }: LogInType = req.body;
     const { accessToken, refreshToken, user } = await svc.logIn(email,password);
 
-    if(!accessToken || !refreshToken) sendSuccess(res, "OTP Sent");
-
     res.cookie("refreshToken",refreshToken,{
         httpOnly: true,
         secure: true,
@@ -45,4 +42,19 @@ export const LogInController = async (req: Request, res: Response) => {
     })
 
     sendSuccess(res, "Logged in successfully", 200, {user, accessToken});
+}
+
+export const refreshController = async (req: Request, res: Response) => {
+    const incomingRefreshToken = req.cookies.refreshToken;
+
+    const { accessToken, refreshToken } = await svc.refresh(incomingRefreshToken);
+
+    res.cookie("refreshToken",refreshToken,{
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    })
+
+    sendSuccess(res, "Refreshed tokens successfully", 200, {accessToken});
 }
