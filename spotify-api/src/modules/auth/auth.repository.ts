@@ -1,6 +1,6 @@
 import prismaClient from "../../database/prismaClient.js";
 import { redisClient } from "../../cache/redis.js";
-import { getOTPKey } from "../../helper/getKeys.js";
+import { getOTPKey, getRefreshTokenKey } from "../../helper/getKeys.js";
 
 export const findUserByEmail = async (email: string) => {
     return await prismaClient.user.findUnique({
@@ -95,4 +95,13 @@ export const deleteOTPFromCache = async (email: string) => {
 
 export const getOTPFromCache = async (email: string) => {
     return await redisClient.get(getOTPKey(email));
+}
+
+export const saveRefreshTokenInCache = async (userId: string, refreshToken: string) => {
+    return await redisClient.set(getRefreshTokenKey(userId), refreshToken, {
+        expiration: {
+            type:"EX",
+            value: 60*60*24*30
+        }
+    });
 }

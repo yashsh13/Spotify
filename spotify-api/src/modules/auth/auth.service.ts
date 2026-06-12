@@ -1,7 +1,8 @@
 import { ConflictError, NotFoundError, UnauthorizedError } from "../../utils/apiError.js";
 import * as repo from "./auth.repository.js";
-import { hashPassword } from "../../helper/bcrypt.js";
+import { hashPassword, comparePassword } from "../../helper/bcrypt.js";
 import { sendVerificationMail } from "../../email/emails.js";
+import { createTokens } from "../../helper/jwt.js";
 
 export const signUp = async (username: string, email: string, password: string) => {
 
@@ -9,7 +10,6 @@ export const signUp = async (username: string, email: string, password: string) 
     if(emailExists){
         if(emailExists.isVerified) throw new ConflictError("User with this email already exists");
         else {
-            await repo.deleteOTPFromCache(email);
             const hashedpassword = await hashPassword(password);
             const updatedValues = {
                 username,
@@ -23,7 +23,6 @@ export const signUp = async (username: string, email: string, password: string) 
     if(usernameExists){
         if(usernameExists.isVerified) throw new ConflictError("User with this username already exists");
         else {
-            await repo.deleteOTPFromCache(usernameExists.email);
             const hashedPassword = await hashPassword(password);
             const updatedValues = {
                 email,
@@ -53,7 +52,6 @@ export const resendOTP = async (email: string) => {
     const user = await repo.findUserByEmail(email);
     if(!user || user.isVerified ) return;
     
-    await repo.deleteOTPFromCache(email);
     const data = await generateAndSendOTP(email, user.username);
     return data;
 }
@@ -70,5 +68,30 @@ export const verifyOTP = async (email: string, inputOTP: string) => {
 
     await repo.deleteOTPFromCache(email);
     const user = await repo.updateUserByEmail(email, { isVerified: true });
-    return user;
+
+    const { accessToken, refreshToken } = createTokens(user.id, user.role);
+    await repo.saveRefreshTokenInCache(user.id, refreshToken);
+
+    return { accessToken, refreshToken, user };
+}
+
+export const logIn = async (email: string, password: string) => {
+
+    const user = await repo.findUserByEmail(email);
+    if(!user) throw new NotFoundError("User");
+    if(!user.isVerified) {
+        generateAndSendOTP(user.email, user.username);
+        return {
+            accessToken: null,
+            refreshToken: null
+        }
+    };
+
+    const validPassword = await comparePassword(password, user.password);
+    if(!validPassword) throw new UnauthorizedError("Invalid Credentials");
+
+    const { accessToken, refreshToken } = createTokens(user.id, user.role);
+    await repo.saveRefreshTokenInCache(user.id, refreshToken);
+
+    return { accessToken, refreshToken, user };
 }
