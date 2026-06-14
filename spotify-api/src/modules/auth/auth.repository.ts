@@ -1,6 +1,6 @@
 import prismaClient from "../../database/prismaClient.js";
 import { redisClient } from "../../cache/redis.js";
-import { getOTPKey, getRefreshTokenKey } from "../../helper/getKeys.js";
+import { getOTPKey, getRefreshTokenKey, getForgotPassTokenKey } from "../../helper/getKeys.js";
 
 export const findUserByEmail = async (email: string) => {
     return await prismaClient.user.findUnique({
@@ -33,6 +33,29 @@ export const createUser = async (username: string, email: string, password: stri
             email,
             password
         },
+        select: {
+            id: true,
+            email: true,
+            username: true,
+            isVerified: true,
+            role: true,
+            createdAt: true
+        }
+    });
+}
+
+export const updateUserById = async (id: string, updatedValues: {
+    email?: string,
+    username?: string
+    password?: string,
+    isVerified?: boolean,
+    avatar?: string
+}) => {
+    return await prismaClient.user.update({
+        where: {
+            id
+        },
+        data: updatedValues,
         select: {
             id: true,
             email: true,
@@ -116,4 +139,25 @@ export const saveRefreshTokenInCache = async (userId: string, refreshToken: stri
 
 export const getRefreshTokenFromCache = async (userId: string) => {
     return await redisClient.get(getRefreshTokenKey(userId));
+}
+
+export const deleteRefreshTokenFromCache = async (userId: string) => {
+    return await redisClient.del(getRefreshTokenKey(userId));
+}
+
+export const saveForgotPassTokenInCache = async (userId: string, forgotPasswordToken: string) => {
+    return await redisClient.set(getForgotPassTokenKey(userId), forgotPasswordToken, {
+        expiration: {
+            type: "EX",
+            value: 300
+        }
+    });
+}
+
+export const getForgotPassTokenFromCache = async (userId: string) => {
+    return await redisClient.get(getForgotPassTokenKey(userId));
+}
+
+export const deleteForgotPassTokenFromCache = async (userId: string) => {
+    return await redisClient.del(getForgotPassTokenKey(userId));
 }

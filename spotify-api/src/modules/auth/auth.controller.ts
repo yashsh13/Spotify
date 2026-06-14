@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { SignUpType, ResendOTPType, VerifyOTPType, LogInType } from "./auth.schema.js";
+import type { SignUpType, ResendOTPType, VerifyOTPType, LogInType, ForgotPasswordType, ResetPasswordType } from "./auth.schema.js";
 import * as svc from "./auth.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
 
@@ -30,7 +30,7 @@ export const verifyOTPController = async (req: Request, res: Response) => {
     sendSuccess(res, "OTP Verified Successfully", 200, {user, accessToken});
 }
 
-export const LogInController = async (req: Request, res: Response) => {
+export const logInController = async (req: Request, res: Response) => {
     const { email, password }: LogInType = req.body;
     const { accessToken, refreshToken, user } = await svc.logIn(email,password);
 
@@ -57,4 +57,29 @@ export const refreshController = async (req: Request, res: Response) => {
     })
 
     sendSuccess(res, "Refreshed tokens successfully", 200, {accessToken});
+}
+
+export const forgotPasswordController =  async (req: Request, res: Response) => {
+    const { email }: ForgotPasswordType = req.body;
+    const data = await svc.forgotPassword(email);
+    sendSuccess(res, "Reset link sent");
+}
+
+export const resetPasswordController = async (req: Request, res: Response) => {
+    const { token, newPassword }: ResetPasswordType = req.body;
+    const user = await svc.resetPassword(token, newPassword);
+    sendSuccess(res, "Password reset successful");
+}
+
+export const logOutController = async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    await svc.logOut(userId);
+
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax'
+    });
+
+    sendSuccess(res, "Logged out successfully");
 }

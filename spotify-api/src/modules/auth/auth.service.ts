@@ -1,9 +1,8 @@
 import { ConflictError, NotFoundError, UnauthorizedError } from "../../utils/apiError.js";
 import * as repo from "./auth.repository.js";
-import { hashPassword, comparePassword } from "../../helper/bcrypt.js";
-import { sendVerificationMail } from "../../email/emails.js";
-import { createTokens, verifyRefreshToken } from "../../helper/jwt.js";
-import type { JwtPayload } from "jsonwebtoken";
+import { hashPassword, comparePassword, hashToken } from "../../helper/hash.js";
+import { sendVerificationMail, sendForgotPasswordMail } from "../../email/emails.js";
+import { createTokens, verifyRefreshToken, createForgotPasswordToken, verifyForgotPasswordToken } from "../../helper/jwt.js";
 
 export const signUp = async (username: string, email: string, password: string) => {
 
@@ -97,8 +96,8 @@ export const refresh = async (incomingRefreshToken: string) => {
 
     const decoded = verifyRefreshToken(incomingRefreshToken);
     if(!decoded) throw new UnauthorizedError("Refresh Token Expired");
-    const userId = (decoded as JwtPayload).userId;
-    const userRole = (decoded as JwtPayload).role;
+    const userId = decoded.userId;
+    const userRole = decoded.role;
 
     const savedRefreshToken = await repo.getRefreshTokenFromCache(userId);
     if(!savedRefreshToken) throw new UnauthorizedError("Refresh Token Expired");
@@ -108,4 +107,43 @@ export const refresh = async (incomingRefreshToken: string) => {
     await repo.saveRefreshTokenInCache(userId, refreshToken);
 
     return { accessToken, refreshToken };
+}
+
+export const forgotPassword = async (email: string) => {
+    const user = await repo.findUserByEmail(email);
+    if(!user) return;
+
+    const token = createForgotPasswordToken(user.id);
+
+    const hashedToken = hashToken(token);
+    await repo.saveForgotPassTokenInCache(user.id, hashedToken);
+
+    const data = await sendForgotPasswordMail(user.username, email, token);
+    return data
+}
+
+export const resetPassword = async (incomingForgotPassToken: string, password: string) => {
+    const forgotPasswordPayload = verifyForgotPasswordToken(incomingForgotPassToken);
+    if(!forgotPasswordPayload) throw new UnauthorizedError("Invalid Token");
+
+    const userId = forgotPasswordPayload.userId;
+    if(!userId) throw new UnauthorizedError("Invalid Token");
+
+    const incomingHashedToken = hashToken(incomingForgotPassToken);
+    const hashedToken = await repo.getForgotPassTokenFromCache(userId);
+    if(!hashedToken) throw new UnauthorizedError("Token Expired");
+    if(incomingHashedToken !== hashedToken) throw new UnauthorizedError("Invalid Token");
+
+    const hashedPassword = await hashPassword(password);
+    const updatedValues = { password: hashedPassword };
+
+    await repo.deleteForgotPassTokenFromCache(userId);
+    const user = await repo.updateUserById(userId, updatedValues);
+
+    return user;
+}
+
+export const logOut = async (userId: string) =>{
+    await repo.deleteRefreshTokenFromCache(userId);
+    return
 }

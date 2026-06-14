@@ -20,6 +20,16 @@ services:
       - redis_data:/data
     container_name: spotify_cache
 
+  redis-insight:
+    image: redis/redisinsight:3.4
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight_data:/data
+    container_name: redis-insight
+
 volumes:
   postgres_data:
   redis_data:
+  redis-insight_data:

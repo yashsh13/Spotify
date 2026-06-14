@@ -13,7 +13,9 @@ export const envSchema = z.object({
     BCRYPT_SALT_ROUNDS: z.coerce.number(),
     RESEND_API_KEY: z.string(),
     EMAIL_FROM: z.string(),
-    API_PREFIX: z.string()
+    API_PREFIX: z.string(),
+    FORGOT_PASSWORD_SECRET: z.string(),
+    FRONTEND_URL: z.string()
 });
 
 export type EnvType = z.infer<typeof envSchema>;
