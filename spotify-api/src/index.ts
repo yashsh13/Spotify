@@ -1,7 +1,7 @@
 import app from "./app.js";
 import parsedEnv from "./config/env.js";
-import connectDB from "./database/connectDB.js";
-import connectCache from "./cache/redis.js";
+import connectDB from "./config/database/connectDB.js";
+import connectCache from "./config/cache/redis.js";
 
 await connectDB();
 await connectCache();

@@ -15,7 +15,11 @@ export const envSchema = z.object({
     EMAIL_FROM: z.string(),
     API_PREFIX: z.string(),
     FORGOT_PASSWORD_SECRET: z.string(),
-    FRONTEND_URL: z.string()
+    FRONTEND_URL: z.string(),
+    AWS_BUCKET: z.string(),
+    AWS_REGION: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
+    AWS_ACCESS_KEY_ID: z.string()
 });
 
 export type EnvType = z.infer<typeof envSchema>;

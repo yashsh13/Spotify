@@ -1,5 +1,5 @@
-import prismaClient from "../../database/prismaClient.js";
-import { redisClient } from "../../cache/redis.js";
+import prismaClient from "../../config/database/prismaClient.js";
+import { redisClient } from "../../config/cache/redis.js";
 import { getOTPKey, getRefreshTokenKey, getForgotPassTokenKey } from "../../helper/getKeys.js";
 
 export const findUserByEmail = async (email: string) => {
