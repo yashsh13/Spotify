@@ -5,6 +5,7 @@ import parsedEnv from "./config/env.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 
 import authRouter from "./modules/auth/auth.route.js";
+import tracksRouter from "./modules/tracks/tracks.routes.js";
 
 const app: Express = express();
 
@@ -18,6 +19,7 @@ app.get('/health',(_req,res)=>{
 });
 
 app.use(`${parsedEnv.API_PREFIX}/auth`, authRouter);
+app.use(`${parsedEnv.API_PREFIX}/tracks`, tracksRouter);
 
 app.use(errorMiddleware);
 

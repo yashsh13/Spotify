@@ -19,7 +19,9 @@ export const envSchema = z.object({
     AWS_BUCKET: z.string(),
     AWS_REGION: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
-    AWS_ACCESS_KEY_ID: z.string()
+    AWS_ACCESS_KEY_ID: z.string(),
+    S3_TRACK_AUDIO_PREFIX: z.string(),
+    S3_TRACK_IMAGE_PREFIX: z.string()
 });
 
 export type EnvType = z.infer<typeof envSchema>;
