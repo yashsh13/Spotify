@@ -1,7 +1,9 @@
-import { putObjectUrl } from "../../helper/s3.js";
+import { putObjectUrl, fileExists, getObjectUrl } from "../../helper/s3.js";
 import { v4 as uuidv4 } from "uuid";
 import getExtension from "../../helper/getExtension.js";
-import { NotFoundError } from "../../utils/apiError.js";
+import { ConflictError, NotFoundError } from "../../utils/apiError.js";
+import type { UploadTrackType, TrackType } from "./tracks.schema.js";
+import * as repo from "./tracks.repository.js";
 
 export const putPreSignedUrl = async (type: string, prefix: string) => {
     const uuid = uuidv4();
@@ -12,4 +14,68 @@ export const putPreSignedUrl = async (type: string, prefix: string) => {
     const url = await putObjectUrl(key, type);
 
     return { url, key }
+}
+
+export const getPreSignedUrl = async (fileKey: string) => {
+    const urlFromCache = await repo.getUrlFromCache(fileKey);
+    if(urlFromCache) return urlFromCache;
+
+    const url = await getObjectUrl(fileKey);
+    if(!url) throw new NotFoundError("File");
+    await repo.setUrlInCache(fileKey, url);
+    
+    return url
+}
+
+export const uploadTrack = async (trackData: UploadTrackType) => {
+    const nameAlreadyExists = await repo.findTrackByName(trackData.name);
+    if(nameAlreadyExists) throw new ConflictError("Track with this name already exists");
+
+    const audioKeyAlreadyExists = await repo.findTrackByAudioKey(trackData.audioFile);
+    if(audioKeyAlreadyExists) throw new ConflictError("Track with this audio key already exists");
+    
+    //Throws error automatically if files dont exists
+    await fileExists(trackData.audioFile);
+    await fileExists(trackData.coverPhoto);
+
+    const track = await repo.createTrack(trackData);
+    return track;
+}
+
+export const getTrackInfo = async (trackId: string) => {
+    const trackFromCache = await repo.getTrackFromCache(trackId);
+    if(trackFromCache) return JSON.parse(trackFromCache);
+
+    const track = await repo.findTrackById(trackId);
+    if(!track) throw new NotFoundError("Track");
+
+    await repo.setTrackInCache(trackId,track);
+    return track
+}
+
+export const getAllTracks = async (pageNo: number) => {
+
+    const tracksFromCache = await repo.getAllTracksFromCache(pageNo);
+
+    if(!tracksFromCache) {
+        const tracks = await repo.getAllTracks(pageNo);
+        if(!tracks) throw new NotFoundError("Tracks");
+        await repo.setAllTracksInCache(pageNo, tracks);
+        
+        const tracksWithImage = Promise.all(await tracks.map(async track => {
+            const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
+            return { ...track, coverImageUrl}
+        }));
+
+        return tracksWithImage;
+    }
+
+    const tracks = JSON.parse(tracksFromCache);
+    
+    const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
+        const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
+        return { ...track, coverImageUrl}
+    }));
+
+    return tracksWithImage;
 }

@@ -47,10 +47,9 @@ model Track {
   id               String   @id @default(uuid())
   name             String   @unique
   artistName       String
-  coverPhoto       String? 
+  coverPhoto       String 
   duration         Int
   genre            String?
-  playCount        Int      @default(0)
   audioFile        String   @unique
   createdAt        DateTime @default(now())
   playlistTrack    PlaylistTrack[]

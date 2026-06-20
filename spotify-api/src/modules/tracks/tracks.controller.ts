@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { PreSignedUrlType } from "./tracks.schema.js";
+import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType } from "./tracks.schema.js";
 import * as svc from "./tracks.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
 import parsedEnv from "../../config/env.js";
@@ -11,4 +11,24 @@ export const presignedUrlController = async (req: Request, res: Response) => {
     const imageInfo = await svc.putPreSignedUrl(imageType, parsedEnv.S3_TRACK_IMAGE_PREFIX);
 
     sendSuccess(res, "Created put presigned urls successfully", 200, { audioInfo, imageInfo })
+}
+
+export const uploadTrackController = async (req: Request, res: Response) => {
+    const trackData: UploadTrackType = req.body;
+    const track = await svc.uploadTrack(trackData);
+    sendSuccess(res, "Track uploaded successfully", 201, track);
+}
+
+export const getTrackInfoController = async (req: Request, res: Response) => {
+    const { trackId }: GetTrackInfoType = req.body;
+    const track = await svc.getTrackInfo(trackId);
+    const coverImageUrl = await svc.getPreSignedUrl(track.coverPhoto);
+    const audioUrl = await svc.getPreSignedUrl(track.audioFile);
+    sendSuccess(res, "Track fetched successfully", 200, { ...track, coverImageUrl, audioUrl });
+}
+
+export const getAllTracksController = async (req: Request, res: Response) => {
+    const { pageNo }: GetAllTracksType = req.body;
+    const tracks = await svc.getAllTracks(pageNo);
+    sendSuccess(res, "Fetched all tracks successfully", 200, { tracks, pageNo });
 }
