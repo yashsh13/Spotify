@@ -15,7 +15,8 @@ const authMiddleware = (req: Request, _res: Response, next: NextFunction) => {
 
     req.user = {
         id: accessTokenPayload.userId,
-        role: accessTokenPayload.role
+        role: accessTokenPayload.role,
+        plan: accessTokenPayload.plan
     }
 
     return next();

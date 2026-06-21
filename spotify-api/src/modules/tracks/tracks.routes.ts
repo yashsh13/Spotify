@@ -10,7 +10,7 @@ const tracksRouter: Router = Router();
 
 tracksRouter.post('/presignedurl/put', authMiddleware, adminMiddleware, validationMiddleware(preSignedUrlSchema), asyncHandler(ctrl.presignedUrlController));
 tracksRouter.post('/upload', authMiddleware, adminMiddleware, validationMiddleware(uploadTrackSchema), asyncHandler(ctrl.uploadTrackController));
-tracksRouter.get('/info/:trackId', authMiddleware, validationMiddleware(getTrackInfoSchema), asyncHandler(ctrl.getTrackInfoController));
+tracksRouter.get('/listen/:trackId', authMiddleware, validationMiddleware(getTrackInfoSchema), asyncHandler(ctrl.getTrackInfoController));
 tracksRouter.get('/all/:pageNo', authMiddleware, validationMiddleware(getAllTracksSchema), asyncHandler(ctrl.getAllTracksController));
 
 export default tracksRouter;

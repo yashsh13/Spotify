@@ -1,9 +1,10 @@
 import 'express';
-import { Role } from '../generated/prisma/enums.ts';
+import { Role, Plan } from '../generated/prisma/enums.ts';
 
 export interface User {
     id: string,
-    role: Role
+    role: Role,
+    plan: Plan
 }
 
 declare global{

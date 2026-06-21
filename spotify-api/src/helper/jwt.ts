@@ -1,20 +1,22 @@
-import { Role } from "../generated/prisma/client.js";
+import { Role, Plan } from "../generated/prisma/client.js";
 import jwt from "jsonwebtoken";
 import parsedEnv from "../config/env.js";
 
 export interface AuthTokenPayload {
     userId: string,
-    role: Role
+    role: Role,
+    plan: Plan
 }
 
 export interface ForgotPassTokenPayload {
     userId: string
 }
 
-export const createTokens = (userId: string, role: Role) => {
+export const createTokens = (userId: string, role: Role, plan: Plan) => {
     const jwtPayLoad: AuthTokenPayload = {
         userId,
-        role
+        role,
+        plan
     }
 
     const accessToken = jwt.sign(jwtPayLoad,parsedEnv.ACCESS_TOKEN_SECRET,{

@@ -28,12 +28,15 @@ export const getPreSignedUrl = async (fileKey: string) => {
 }
 
 export const uploadTrack = async (trackData: UploadTrackType) => {
-    const nameAlreadyExists = await repo.findTrackByName(trackData.name);
-    if(nameAlreadyExists) throw new ConflictError("Track with this name already exists");
 
-    const audioKeyAlreadyExists = await repo.findTrackByAudioKey(trackData.audioFile);
+    const [nameAlreadyExists, audioKeyAlreadyExists] = await Promise.all([
+        await repo.findTrackByName(trackData.name),
+        await repo.findTrackByAudioKey(trackData.audioFile)
+    ])
+
+    if(nameAlreadyExists) throw new ConflictError("Track with this name already exists");
     if(audioKeyAlreadyExists) throw new ConflictError("Track with this audio key already exists");
-    
+
     //Throws error automatically if files dont exists
     await fileExists(trackData.audioFile);
     await fileExists(trackData.coverPhoto);

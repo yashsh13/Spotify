@@ -62,6 +62,7 @@ export const updateUserById = async (id: string, updatedValues: {
             username: true,
             isVerified: true,
             role: true,
+            plan: true,
             createdAt: true
         }
     });
@@ -84,6 +85,7 @@ export const updateUserByUsername = async (username: string, updatedValues: {
             username: true,
             isVerified: true,
             role: true,
+            plan: true,
             createdAt: true
         }
     });
@@ -106,6 +108,7 @@ export const updateUserByEmail = async (email: string, updatedValues: {
             username: true,
             isVerified: true,
             role: true,
+            plan: true,
             createdAt: true
         }
     });

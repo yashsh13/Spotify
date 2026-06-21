@@ -42,6 +42,7 @@ export const fileExists = async (key: string) => {
 
         return response
     }catch (error){
+        console.log("S3 HeadObject Error:", error);
         throw new NotFoundError("File")
     }
 }

@@ -66,7 +66,7 @@ export const verifyOTP = async (email: string, inputOTP: string) => {
     await repo.deleteOTPFromCache(email);
     const user = await repo.updateUserByEmail(email, { isVerified: true });
 
-    const { accessToken, refreshToken } = createTokens(user.id, user.role);
+    const { accessToken, refreshToken } = createTokens(user.id, user.role, user.plan);
     await repo.saveRefreshTokenInCache(user.id, refreshToken);
 
     return { accessToken, refreshToken, user };
@@ -84,7 +84,7 @@ export const logIn = async (email: string, password: string) => {
     const validPassword = await comparePassword(password, user.password);
     if(!validPassword) throw new UnauthorizedError("Invalid Credentials");
 
-    const { accessToken, refreshToken } = createTokens(user.id, user.role);
+    const { accessToken, refreshToken } = createTokens(user.id, user.role, user.plan);
     await repo.saveRefreshTokenInCache(user.id, refreshToken);
 
     const { password:_, ...safeUser } = user;
@@ -98,12 +98,13 @@ export const refresh = async (incomingRefreshToken: string) => {
     if(!decoded) throw new UnauthorizedError("Refresh Token Expired");
     const userId = decoded.userId;
     const userRole = decoded.role;
+    const userPlan = decoded.plan;
 
     const savedRefreshToken = await repo.getRefreshTokenFromCache(userId);
     if(!savedRefreshToken) throw new UnauthorizedError("Refresh Token Expired");
     if(incomingRefreshToken !== savedRefreshToken ) throw new UnauthorizedError("Invalid Refresh Token");
 
-    const { accessToken, refreshToken } = createTokens(userId, userRole);
+    const { accessToken, refreshToken } = createTokens(userId, userRole, userPlan);
     await repo.saveRefreshTokenInCache(userId, refreshToken);
 
     return { accessToken, refreshToken };

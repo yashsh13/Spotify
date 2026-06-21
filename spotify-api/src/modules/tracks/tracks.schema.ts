@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { audioExtensionMap, imageExtensionMap } from '../../helper/getExtension.js';
+import parsedEnv from "../../config/env.js";
 
 export const preSignedUrlSchema = z.object({
     body: z.object({
@@ -12,10 +13,10 @@ export const uploadTrackSchema = z.object({
     body: z.object({
         name: z.string().min(3).max(30).trim(),
         artistName: z.string().min(3).max(30).trim(),
-        coverPhoto: z.string().trim(),
+        coverPhoto: z.string().startsWith(parsedEnv.S3_TRACK_IMAGE_PREFIX).trim(),
         duration: z.number().gte(1),
         genre: z.enum(["hip-hop","classical"]).nullable(),
-        audioFile: z.string().trim()
+        audioFile: z.string().startsWith(parsedEnv.S3_TRACK_AUDIO_PREFIX).trim()
     })
 });
 
@@ -23,10 +24,10 @@ export const trackSchema = z.object({
     id: z.uuid(),
     name: z.string().min(3).max(30).trim(),
     artistName: z.string().min(3).max(30).trim(),
-    coverPhoto: z.string().trim(),
+    coverPhoto: z.string().startsWith(parsedEnv.S3_TRACK_IMAGE_PREFIX).trim(),
     duration: z.number().gte(1),
     genre: z.string().nullable(),
-    audioFile: z.string().trim()
+    audioFile: z.string().startsWith(parsedEnv.S3_TRACK_AUDIO_PREFIX).trim()
 });
 
 export const getTrackInfoSchema = z.object({
