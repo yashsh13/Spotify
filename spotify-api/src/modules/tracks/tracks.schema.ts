@@ -2,17 +2,21 @@ import { z } from 'zod';
 import { audioExtensionMap, imageExtensionMap } from '../../helper/getExtension.js';
 
 export const preSignedUrlSchema = z.object({
-    audioType: z.enum(Object.keys(audioExtensionMap)),
-    imageType: z.enum(Object.keys(imageExtensionMap))
+    body: z.object({
+        audioType: z.enum(Object.keys(audioExtensionMap)),
+        imageType: z.enum(Object.keys(imageExtensionMap))
+    })
 });
 
 export const uploadTrackSchema = z.object({
-    name: z.string().min(3).max(30).trim(),
-    artistName: z.string().min(3).max(30).trim(),
-    coverPhoto: z.string().trim(),
-    duration: z.number().gte(1),
-    genre: z.enum(["hip-hop","classical"]).nullable(),
-    audioFile: z.string().trim()
+    body: z.object({
+        name: z.string().min(3).max(30).trim(),
+        artistName: z.string().min(3).max(30).trim(),
+        coverPhoto: z.string().trim(),
+        duration: z.number().gte(1),
+        genre: z.enum(["hip-hop","classical"]).nullable(),
+        audioFile: z.string().trim()
+    })
 });
 
 export const trackSchema = z.object({
@@ -26,15 +30,19 @@ export const trackSchema = z.object({
 });
 
 export const getTrackInfoSchema = z.object({
-    trackId: z.uuid()
+    params: z.object({
+        trackId: z.uuid()
+    })
 });
 
 export const getAllTracksSchema = z.object({
-    pageNo: z.number().gte(1)
+    params: z.object({
+        pageNo: z.coerce.number().gte(1)
+    })
 });
 
-export type PreSignedUrlType = z.infer<typeof preSignedUrlSchema>;
-export type UploadTrackType = z.infer<typeof uploadTrackSchema>;
+export type PreSignedUrlType = z.infer<typeof preSignedUrlSchema.shape.body>;
+export type UploadTrackType = z.infer<typeof uploadTrackSchema.shape.body>;
 export type TrackType = z.infer<typeof trackSchema>;
-export type GetTrackInfoType = z.infer<typeof getTrackInfoSchema>;
-export type GetAllTracksType = z.infer<typeof getAllTracksSchema>;
+export type GetTrackInfoType = z.infer<typeof getTrackInfoSchema.shape.params>;
+export type GetAllTracksType = z.infer<typeof getAllTracksSchema.shape.params>;

@@ -20,47 +20,59 @@ export const passwordSchema = z.string()
                             .trim();
 
 export const signUpSchema = z.object({
-    email: emailSchema,
-    username: usernameSchema,
-    password: passwordSchema,
-    confirmPassword: passwordSchema
-}).refine(data => data.password === data.confirmPassword, {error: "Confirm password must match the password"});
+    body: z.object({
+        email: emailSchema,
+        username: usernameSchema,
+        password: passwordSchema,
+        confirmPassword: passwordSchema
+    })
+}).refine(data => data.body.password === data.body.confirmPassword, {error: "Confirm password must match the password"});
 
 export const logInSchema = z.object({
-    email: emailSchema,
-    password: z.string()
-                .min(3, {error:"Minimum 3 characters"})
-                .max(25, {error:"Maximum 25 chracters"})
-                .trim()
+    body: z.object({
+        email: emailSchema,
+        password: z.string()
+                    .min(3, {error:"Minimum 3 characters"})
+                    .max(25, {error:"Maximum 25 chracters"})
+                    .trim()
+    })
 });
 
 export const resendOTPSchema = z.object({
-    email: emailSchema
+    body: z.object({
+        email: emailSchema
+    })
 })
 
 export const verifyOTPSchema = z.object({
-    email: emailSchema,
-    otp: z.string()
-        .length(6,{error:"OTP must be of length 6"})
-        .regex(/^\d+$/,{error:"OTP must be a sequence of digits"})
+    body: z.object({
+        email: emailSchema,
+        otp: z.string()
+            .length(6,{error:"OTP must be of length 6"})
+            .regex(/^\d+$/,{error:"OTP must be a sequence of digits"})
+    })
 })
 
 export const forgotPasswordSchema = z.object({
-    email: emailSchema
+    body: z.object({
+        email: emailSchema
+    })
 })
 
 export const resetPasswordSchema = z.object({
-    token: z.string(),
-    newPassword: passwordSchema,
-    confirmNewPassword: passwordSchema
-}).refine(data => data.newPassword === data.confirmNewPassword, {error: "Confirm password must match the password"})
+    body: z.object({
+        token: z.string(),
+        newPassword: passwordSchema,
+        confirmNewPassword: passwordSchema
+    })
+}).refine(data => data.body.newPassword === data.body.confirmNewPassword, {error: "Confirm password must match the password"})
 
-export type SignUpType = z.infer<typeof signUpSchema>;
-export type LogInType = z.infer<typeof logInSchema>;
-export type ResendOTPType = z.infer<typeof verifyOTPSchema>;
-export type VerifyOTPType = z.infer<typeof verifyOTPSchema>;
-export type ForgotPasswordType = z.infer<typeof forgotPasswordSchema>;
-export type ResetPasswordType = z.infer<typeof resetPasswordSchema>;
+export type SignUpType = z.infer<typeof signUpSchema.shape.body>;
+export type LogInType = z.infer<typeof logInSchema.shape.body>;
+export type ResendOTPType = z.infer<typeof verifyOTPSchema.shape.body>;
+export type VerifyOTPType = z.infer<typeof verifyOTPSchema.shape.body>;
+export type ForgotPasswordType = z.infer<typeof forgotPasswordSchema.shape.body>;
+export type ResetPasswordType = z.infer<typeof resetPasswordSchema.shape.body>;
 
 
 

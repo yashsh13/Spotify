@@ -5,7 +5,7 @@ import { sendSuccess } from "../../utils/apiResponse.js";
 import parsedEnv from "../../config/env.js";
 
 export const presignedUrlController = async (req: Request, res: Response) => {
-    const { audioType, imageType }: PreSignedUrlType = req.body;
+    const { audioType, imageType }: PreSignedUrlType = req.validated.body;
 
     const audioInfo = await svc.putPreSignedUrl(audioType, parsedEnv.S3_TRACK_AUDIO_PREFIX);
     const imageInfo = await svc.putPreSignedUrl(imageType, parsedEnv.S3_TRACK_IMAGE_PREFIX);
@@ -14,13 +14,13 @@ export const presignedUrlController = async (req: Request, res: Response) => {
 }
 
 export const uploadTrackController = async (req: Request, res: Response) => {
-    const trackData: UploadTrackType = req.body;
+    const trackData: UploadTrackType = req.validated.body;
     const track = await svc.uploadTrack(trackData);
     sendSuccess(res, "Track uploaded successfully", 201, track);
 }
 
 export const getTrackInfoController = async (req: Request, res: Response) => {
-    const { trackId }: GetTrackInfoType = req.body;
+    const { trackId }: GetTrackInfoType = req.validated.params;
     const track = await svc.getTrackInfo(trackId);
     const coverImageUrl = await svc.getPreSignedUrl(track.coverPhoto);
     const audioUrl = await svc.getPreSignedUrl(track.audioFile);
@@ -28,7 +28,7 @@ export const getTrackInfoController = async (req: Request, res: Response) => {
 }
 
 export const getAllTracksController = async (req: Request, res: Response) => {
-    const { pageNo }: GetAllTracksType = req.body;
+    const { pageNo }: GetAllTracksType = req.validated.params;
     const tracks = await svc.getAllTracks(pageNo);
     sendSuccess(res, "Fetched all tracks successfully", 200, { tracks, pageNo });
 }

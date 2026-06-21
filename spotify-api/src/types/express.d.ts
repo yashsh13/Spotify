@@ -9,7 +9,12 @@ export interface User {
 declare global{
     namespace Express{
         interface Request{
-            user: User
+            user: User,
+            validated: {
+                body?: any,
+                params?: any,
+                query?: any
+            }
         }
     }
 }

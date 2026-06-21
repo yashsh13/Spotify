@@ -56,21 +56,15 @@ export const getTrackInfo = async (trackId: string) => {
 export const getAllTracks = async (pageNo: number) => {
 
     const tracksFromCache = await repo.getAllTracksFromCache(pageNo);
-
+    let tracks: TrackType[]
+    
     if(!tracksFromCache) {
-        const tracks = await repo.getAllTracks(pageNo);
+        tracks = await repo.getAllTracks(pageNo);
         if(!tracks) throw new NotFoundError("Tracks");
         await repo.setAllTracksInCache(pageNo, tracks);
-        
-        const tracksWithImage = Promise.all(await tracks.map(async track => {
-            const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
-            return { ...track, coverImageUrl}
-        }));
-
-        return tracksWithImage;
+    } else {
+        tracks = JSON.parse(tracksFromCache);
     }
-
-    const tracks = JSON.parse(tracksFromCache);
     
     const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
         const coverImageUrl = await getPreSignedUrl(track.coverPhoto);

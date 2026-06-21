@@ -4,20 +4,20 @@ import * as svc from "./auth.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
 
 export const signUpController = async (req: Request, res: Response) => {
-    const { username, email, password }: SignUpType = req.body;
+    const { username, email, password }: SignUpType = req.validated.body;
     const user = await svc.signUp(username, email, password);
     const data = await svc.generateAndSendOTP(email, username);
     sendSuccess(res, "Signed up successfully", 201, user);
 };
 
 export const resendOTPController = async (req: Request, res: Response) => {
-    const { email }: ResendOTPType = req.body;
+    const { email }: ResendOTPType = req.validated.body;
     const data = await svc.resendOTP(email);
     sendSuccess(res, "OTP Sent");
 }
 
 export const verifyOTPController = async (req: Request, res: Response) => {
-    const { email, otp }: VerifyOTPType = req.body;
+    const { email, otp }: VerifyOTPType = req.validated.body;
     const { accessToken, refreshToken, user } = await svc.verifyOTP(email, otp);
 
     res.cookie("refreshToken",refreshToken,{
@@ -31,7 +31,7 @@ export const verifyOTPController = async (req: Request, res: Response) => {
 }
 
 export const logInController = async (req: Request, res: Response) => {
-    const { email, password }: LogInType = req.body;
+    const { email, password }: LogInType = req.validated.body;
     const { accessToken, refreshToken, user } = await svc.logIn(email,password);
 
     res.cookie("refreshToken",refreshToken,{
@@ -60,13 +60,13 @@ export const refreshController = async (req: Request, res: Response) => {
 }
 
 export const forgotPasswordController =  async (req: Request, res: Response) => {
-    const { email }: ForgotPasswordType = req.body;
+    const { email }: ForgotPasswordType = req.validated.body;
     const data = await svc.forgotPassword(email);
     sendSuccess(res, "Reset link sent");
 }
 
 export const resetPasswordController = async (req: Request, res: Response) => {
-    const { token, newPassword }: ResetPasswordType = req.body;
+    const { token, newPassword }: ResetPasswordType = req.validated.body;
     const user = await svc.resetPassword(token, newPassword);
     sendSuccess(res, "Password reset successful");
 }

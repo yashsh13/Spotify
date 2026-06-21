@@ -3,13 +3,23 @@ import { type ZodObject, z } from "zod";
 import { ValidationError } from "../utils/apiError.js";
 
 const validationMiddleware = (schema: ZodObject) => (req: Request, _res: Response, next: NextFunction) => {
-
-    const parsedBody = schema.safeParse(req.body);
-
-    if(!parsedBody.success){
-        return next(new ValidationError("Zod Validation Failed",z.treeifyError(parsedBody.error)));
+    
+    const parsedRequest = schema.safeParse({
+        body: req.body,
+        params: req.params,
+        query: req.query
+    });
+    
+    if(!parsedRequest.success){
+        return next(new ValidationError("Zod Validation Failed",z.treeifyError(parsedRequest.error)));
     }
-    req.body = parsedBody.data;
+
+    req.validated = {
+        body: parsedRequest.data.body,
+        params: parsedRequest.data.params,
+        query: parsedRequest.data.query
+    }
+
     return next();
 }
 
