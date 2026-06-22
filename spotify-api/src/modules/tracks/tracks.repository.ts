@@ -70,6 +70,27 @@ export const findTracksByGenre = async (genre: string) => {
     });
 }
 
+export const findMostPlayedTrackIds = async (topCount: number) => {
+    return await prismaClient.listeningHistory.groupBy({
+        by: ['trackId'],
+        _count: { trackId: true },
+        orderBy: {
+            _count: {
+                trackId: 'desc'
+            }
+        },
+        take: topCount
+    })
+}
+
+export const getManyTracksUsingIds = async(trackIds: string[]) => {
+    return prismaClient.track.findMany({
+        where: {
+            id: { in: trackIds }
+        }
+    });
+}
+
 export const setTrackInCache = async (trackId: string, trackData: TrackType) => {
     return await redisClient.set(getTrackKey(trackId), JSON.stringify(trackData), {
         expiration: {

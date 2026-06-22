@@ -49,9 +49,16 @@ export const getTracksByGenreSchema = z.object({
     })
 })
 
+export const mostPlayedSchema = z.object({
+    params: z.object({
+        topCount: z.coerce.number()
+    })
+})
+
 export type PreSignedUrlType = z.infer<typeof preSignedUrlSchema.shape.body>;
 export type UploadTrackType = z.infer<typeof uploadTrackSchema.shape.body>;
 export type TrackType = z.infer<typeof trackSchema>;
 export type GetTrackInfoType = z.infer<typeof getTrackInfoSchema.shape.params>;
 export type GetAllTracksType = z.infer<typeof getAllTracksSchema.shape.params>;
 export type GetTracksByGenreType = z.infer<typeof getTracksByGenreSchema.shape.params>;
+export type MostPlayedType = z.infer<typeof mostPlayedSchema.shape.params>;

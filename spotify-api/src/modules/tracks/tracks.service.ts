@@ -72,6 +72,14 @@ export const getTrackInfo = async (trackId: string, userPlan: Plan, userId: stri
     return track
 }
 
+export const getImageForTracksInArray = async (tracks: TrackType[]) => {
+    const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
+        const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
+        return { ...track, coverImageUrl}
+    }));
+    return tracksWithImage
+}
+
 export const getAllTracks = async (pageNo: number) => {
 
     const tracksFromCache = await repo.getAllTracksFromCache(pageNo);
@@ -85,22 +93,24 @@ export const getAllTracks = async (pageNo: number) => {
         tracks = JSON.parse(tracksFromCache);
     }
     
-    const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
-        const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
-        return { ...track, coverImageUrl}
-    }));
-
+    const tracksWithImage = await getImageForTracksInArray(tracks);
     return tracksWithImage;
 }
 
 export const getTracksByGenre = async (genre: string) => {
     const tracks = await repo.findTracksByGenre(genre);
     if(!tracks) throw new NotFoundError("Tracks with this genre");
-
-    const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
-        const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
-        return { ...track, coverImageUrl}
-    }));
-
+    
+    const tracksWithImage = await getImageForTracksInArray(tracks);
     return tracksWithImage;
+}
+
+export const getMostPlayedTracks = async (topCount: number) => {
+    const rankedTracks = await repo.findMostPlayedTrackIds(topCount);
+    const trackIds = rankedTracks.map(x => x.trackId);
+
+    const tracks = await repo.getManyTracksUsingIds(trackIds);
+    const tracksWithImage = await getImageForTracksInArray(tracks);
+
+    return tracksWithImage
 }
