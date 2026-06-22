@@ -21,7 +21,8 @@ export const envSchema = z.object({
     AWS_SECRET_ACCESS_KEY: z.string(),
     AWS_ACCESS_KEY_ID: z.string(),
     S3_TRACK_AUDIO_PREFIX: z.string(),
-    S3_TRACK_IMAGE_PREFIX: z.string()
+    S3_TRACK_IMAGE_PREFIX: z.string(),
+    FREE_PLAN_LISTENING_LIMIT: z.coerce.number()
 });
 
 export type EnvType = z.infer<typeof envSchema>;

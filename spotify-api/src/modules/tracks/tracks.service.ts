@@ -1,9 +1,11 @@
 import { putObjectUrl, fileExists, getObjectUrl } from "../../helper/s3.js";
 import { v4 as uuidv4 } from "uuid";
 import getExtension from "../../helper/getExtension.js";
-import { ConflictError, NotFoundError } from "../../utils/apiError.js";
+import { ConflictError, ForbiddenError, NotFoundError } from "../../utils/apiError.js";
 import type { UploadTrackType, TrackType } from "./tracks.schema.js";
 import * as repo from "./tracks.repository.js";
+import { Plan } from "../../generated/prisma/enums.js";
+import parsedEnv from "../../config/env.js";
 
 export const putPreSignedUrl = async (type: string, prefix: string) => {
     const uuid = uuidv4();
@@ -45,7 +47,21 @@ export const uploadTrack = async (trackData: UploadTrackType) => {
     return track;
 }
 
-export const getTrackInfo = async (trackId: string) => {
+export const getTrackInfo = async (trackId: string, userPlan: Plan, userId: string) => {
+    if(userPlan === "FREE"){
+        let count = await repo.getUserPlayCount(userId);
+        if(!count){
+            const history = await repo.getTodaysListeningHistory(userId);
+            count = history.length.toString();
+            await repo.setUserPlayCount(userId, count);
+        }
+        if(Number(count) >= parsedEnv.FREE_PLAN_LISTENING_LIMIT) throw new ForbiddenError("Free plan limit reached");
+
+        await repo.incrUserPlayCount(userId);
+    }
+    
+    await repo.createListeningHistoryEntry(userId, trackId);
+
     const trackFromCache = await repo.getTrackFromCache(trackId);
     if(trackFromCache) return JSON.parse(trackFromCache);
 

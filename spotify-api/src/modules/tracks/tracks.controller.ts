@@ -21,7 +21,9 @@ export const uploadTrackController = async (req: Request, res: Response) => {
 
 export const getTrackInfoController = async (req: Request, res: Response) => {
     const { trackId }: GetTrackInfoType = req.validated.params;
-    const track = await svc.getTrackInfo(trackId);
+    const { id: userId, plan: userPlan } = req.user;
+
+    const track = await svc.getTrackInfo(trackId, userPlan, userId);
     const coverImageUrl = await svc.getPreSignedUrl(track.coverPhoto);
     const audioUrl = await svc.getPreSignedUrl(track.audioFile);
     sendSuccess(res, "Track fetched successfully", 200, { ...track, coverImageUrl, audioUrl });
