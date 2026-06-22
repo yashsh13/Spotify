@@ -62,6 +62,14 @@ export const createListeningHistoryEntry = async(userId: string, trackId: string
     });
 }
 
+export const findTracksByGenre = async (genre: string) => {
+    return await prismaClient.track.findMany({
+        where: {
+            genre
+        }
+    });
+}
+
 export const setTrackInCache = async (trackId: string, trackData: TrackType) => {
     return await redisClient.set(getTrackKey(trackId), JSON.stringify(trackData), {
         expiration: {

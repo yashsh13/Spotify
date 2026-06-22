@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType } from "./tracks.schema.js";
+import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType, GetTracksByGenreType } from "./tracks.schema.js";
 import * as svc from "./tracks.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
 import parsedEnv from "../../config/env.js";
@@ -33,4 +33,10 @@ export const getAllTracksController = async (req: Request, res: Response) => {
     const { pageNo }: GetAllTracksType = req.validated.params;
     const tracks = await svc.getAllTracks(pageNo);
     sendSuccess(res, "Fetched all tracks successfully", 200, { tracks, pageNo });
+}
+
+export const getTracksByGenre = async (req: Request, res: Response) => {
+    const { genre }: GetTracksByGenreType = req.validated.params;
+    const tracks = await svc.getTracksByGenre(genre);
+    sendSuccess(res, "Fetched tracks by genre successfully", 200, tracks);
 }

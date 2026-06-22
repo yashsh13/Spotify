@@ -1,6 +1,6 @@
 import { putObjectUrl, fileExists, getObjectUrl } from "../../helper/s3.js";
 import { v4 as uuidv4 } from "uuid";
-import getExtension from "../../helper/getExtension.js";
+import { getExtension } from "../../helper/constants.js";
 import { ConflictError, ForbiddenError, NotFoundError } from "../../utils/apiError.js";
 import type { UploadTrackType, TrackType } from "./tracks.schema.js";
 import * as repo from "./tracks.repository.js";
@@ -85,6 +85,18 @@ export const getAllTracks = async (pageNo: number) => {
         tracks = JSON.parse(tracksFromCache);
     }
     
+    const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
+        const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
+        return { ...track, coverImageUrl}
+    }));
+
+    return tracksWithImage;
+}
+
+export const getTracksByGenre = async (genre: string) => {
+    const tracks = await repo.findTracksByGenre(genre);
+    if(!tracks) throw new NotFoundError("Tracks with this genre");
+
     const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
         const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
         return { ...track, coverImageUrl}

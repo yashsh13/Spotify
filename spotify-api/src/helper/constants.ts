@@ -9,10 +9,13 @@ export const imageExtensionMap: Record<string, string> = {
     "image/jpeg":"jpeg"
 }
 
-const getExtension = (type: string) => {
+export const getExtension = (type: string) => {
     if(type.split('/')[0] === "audio") return audioExtensionMap[type];
     if(type.split('/')[0] === "image") return imageExtensionMap[type];
     return
 }
 
-export default getExtension;
+export const genre = [
+    "hip-hop",
+    "classical"
+]

@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { audioExtensionMap, imageExtensionMap } from '../../helper/getExtension.js';
+import { audioExtensionMap, imageExtensionMap } from '../../helper/constants.js';
 import parsedEnv from "../../config/env.js";
+import { genre } from '../../helper/constants.js';
 
 export const preSignedUrlSchema = z.object({
     body: z.object({
@@ -15,7 +16,7 @@ export const uploadTrackSchema = z.object({
         artistName: z.string().min(3).max(30).trim(),
         coverPhoto: z.string().startsWith(parsedEnv.S3_TRACK_IMAGE_PREFIX).trim(),
         duration: z.number().gte(1),
-        genre: z.enum(["hip-hop","classical"]).nullable(),
+        genre: z.enum(genre).nullable(),
         audioFile: z.string().startsWith(parsedEnv.S3_TRACK_AUDIO_PREFIX).trim()
     })
 });
@@ -42,8 +43,15 @@ export const getAllTracksSchema = z.object({
     })
 });
 
+export const getTracksByGenreSchema = z.object({
+    params: z.object({
+        genre: z.enum(genre)
+    })
+})
+
 export type PreSignedUrlType = z.infer<typeof preSignedUrlSchema.shape.body>;
 export type UploadTrackType = z.infer<typeof uploadTrackSchema.shape.body>;
 export type TrackType = z.infer<typeof trackSchema>;
 export type GetTrackInfoType = z.infer<typeof getTrackInfoSchema.shape.params>;
 export type GetAllTracksType = z.infer<typeof getAllTracksSchema.shape.params>;
+export type GetTracksByGenreType = z.infer<typeof getTracksByGenreSchema.shape.params>;
