@@ -1,7 +1,7 @@
 import { redisClient } from "../../config/cache/redis.js";
 import prismaClient from "../../config/database/prismaClient.js";
 import type { TrackType, UploadTrackType } from "./tracks.schema.js";
-import { getTrackKey, getUrlKey, getAllTracksKey, getUserPlayCountKey } from "../../helper/getKeys.js";
+import { getTrackKey, getUrlKey, getAllTracksKey, getUserPlayCountKey, getGenreTracksKey, getMostPlayedTracksKey } from "../../helper/getKeys.js";
 
 export const findTrackById = async (id: string) => {
     return await prismaClient.track.findUnique({
@@ -66,11 +66,13 @@ export const createListeningHistoryEntry = async(userId: string, trackId: string
     });
 }
 
-export const findTracksByGenre = async (genre: string) => {
+export const findTracksByGenre = async (genre: string, pageNo: number) => {
     return await prismaClient.track.findMany({
         where: {
             genre
-        }
+        },
+        skip: (pageNo-1)*10,
+        take: 10
     });
 }
 
@@ -83,7 +85,10 @@ export const findMostPlayedTrackIds = async (topCount: number) => {
                 trackId: 'desc'
             }
         },
-        take: topCount
+        take: topCount,
+        where: {
+            playedAt: { gte: new Date(Date.now() - 1000*60*60*24*7) }
+        }
     })
 }
 
@@ -92,6 +97,12 @@ export const getManyTracksUsingIds = async(trackIds: string[]) => {
         where: {
             id: { in: trackIds }
         }
+    });
+}
+
+export const getGenreTracksCount = async (genre: string) => {
+    return await prismaClient.track.count({
+        where: { genre }
     });
 }
 
@@ -153,4 +164,30 @@ export const getUserPlayCount = async (userId: string) => {
 
 export const incrUserPlayCount = async (userId: string) => {
     return await redisClient.incr(getUserPlayCountKey(userId));
+}
+
+export const setGenreTracksInCache = async (genre: string, pageNo: number, tracks: TrackType[]) => {
+    return await redisClient.set(getGenreTracksKey(genre, pageNo),JSON.stringify(tracks),{
+        expiration: {
+            type: "EX",
+            value: 60*60
+        }
+    })
+}
+
+export const getGenreTracksFromCache = async (genre: string, pageNo: number) => {
+    return await redisClient.get(getGenreTracksKey(genre, pageNo));
+}
+
+export const setMostPlayedTracksInCache = async (topCount: number, tracks: TrackType[]) => {
+    return await redisClient.set(getMostPlayedTracksKey(topCount),JSON.stringify(tracks),{
+        expiration: {
+            type: "EX",
+            value: 60*20
+        }
+    })
+}
+
+export const getMostPlayedTracksFromCache = async (topCount: number) => {
+    return await redisClient.get(getMostPlayedTracksKey(topCount));
 }

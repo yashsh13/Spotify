@@ -91,28 +91,47 @@ export const getAllTracks = async (pageNo: number) => {
         tracks = await repo.getAllTracks(pageNo);
         if(!tracks.length) throw new NotFoundError("Tracks");
         await repo.setAllTracksInCache(pageNo, tracks);
-    } else {
-        tracks = JSON.parse(tracksFromCache);
-    }
+    } else tracks = JSON.parse(tracksFromCache);
     
     const tracksWithImage = await getImageForTracksInArray(tracks);
     const totalTracksCount = await repo.getTotalTracksCount();
     return {tracksWithImage, totalTracksCount};
 }
 
-export const getTracksByGenre = async (genre: string) => {
-    const tracks = await repo.findTracksByGenre(genre);
-    if(!tracks) throw new NotFoundError("Tracks with this genre");
+export const getTracksByGenre = async (genre: string, pageNo: number) => {
+    let tracks: TrackType[];
+    const genreTracksFromCache = await repo.getGenreTracksFromCache(genre, pageNo);
+
+    if(!genreTracksFromCache){
+        tracks = await repo.findTracksByGenre(genre, pageNo);
+        if(!tracks.length) throw new NotFoundError("Tracks with this genre");
+        await repo.setGenreTracksInCache(genre, pageNo, tracks);
+    } else tracks = JSON.parse(genreTracksFromCache);
     
+
     const tracksWithImage = await getImageForTracksInArray(tracks);
-    return tracksWithImage;
+    const genreTracksCount = await repo.getGenreTracksCount(genre);
+
+    return { tracksWithImage, genreTracksCount };
 }
 
 export const getMostPlayedTracks = async (topCount: number) => {
-    const rankedTracks = await repo.findMostPlayedTrackIds(topCount);
-    const trackIds = rankedTracks.map(x => x.trackId);
+    let tracks: TrackType[];
+    const tracksFromCache = await repo.getMostPlayedTracksFromCache(topCount);
 
-    const tracks = await repo.getManyTracksUsingIds(trackIds);
+    if(!tracksFromCache){
+        const rankedTracks = await repo.findMostPlayedTrackIds(topCount);
+        const trackIds = rankedTracks.map(x => x.trackId);
+
+        const unorderedTracks = await repo.getManyTracksUsingIds(trackIds);
+        if(!unorderedTracks.length) throw new NotFoundError("Tracks");
+
+        const trackMap = new Map(unorderedTracks.map( track => [track.id, track]));
+        tracks = trackIds.map(id => trackMap.get(id)).filter(track => track !== undefined);
+
+        await repo.setMostPlayedTracksInCache(topCount, tracks);
+    } else tracks = JSON.parse(tracksFromCache);
+
     const tracksWithImage = await getImageForTracksInArray(tracks);
 
     return tracksWithImage
