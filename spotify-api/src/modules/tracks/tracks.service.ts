@@ -56,24 +56,26 @@ export const getTrackInfo = async (trackId: string, userPlan: Plan, userId: stri
             await repo.setUserPlayCount(userId, count);
         }
         if(Number(count) >= parsedEnv.FREE_PLAN_LISTENING_LIMIT) throw new ForbiddenError("Free plan limit reached");
-
-        await repo.incrUserPlayCount(userId);
     }
-    
-    await repo.createListeningHistoryEntry(userId, trackId);
 
     const trackFromCache = await repo.getTrackFromCache(trackId);
-    if(trackFromCache) return JSON.parse(trackFromCache);
+    if(trackFromCache){
+        await repo.incrUserPlayCount(userId);
+        await repo.createListeningHistoryEntry(userId, trackId);
+        return JSON.parse(trackFromCache);
+    }
 
     const track = await repo.findTrackById(trackId);
     if(!track) throw new NotFoundError("Track");
 
+    await repo.incrUserPlayCount(userId);
+    await repo.createListeningHistoryEntry(userId, trackId);
     await repo.setTrackInCache(trackId,track);
     return track
 }
 
 export const getImageForTracksInArray = async (tracks: TrackType[]) => {
-    const tracksWithImage = Promise.all(await tracks.map(async (track: TrackType) => {
+    const tracksWithImage = await Promise.all(tracks.map(async (track: TrackType) => {
         const coverImageUrl = await getPreSignedUrl(track.coverPhoto);
         return { ...track, coverImageUrl}
     }));
@@ -87,14 +89,15 @@ export const getAllTracks = async (pageNo: number) => {
     
     if(!tracksFromCache) {
         tracks = await repo.getAllTracks(pageNo);
-        if(!tracks) throw new NotFoundError("Tracks");
+        if(!tracks.length) throw new NotFoundError("Tracks");
         await repo.setAllTracksInCache(pageNo, tracks);
     } else {
         tracks = JSON.parse(tracksFromCache);
     }
     
     const tracksWithImage = await getImageForTracksInArray(tracks);
-    return tracksWithImage;
+    const totalTracksCount = await repo.getTotalTracksCount();
+    return {tracksWithImage, totalTracksCount};
 }
 
 export const getTracksByGenre = async (genre: string) => {

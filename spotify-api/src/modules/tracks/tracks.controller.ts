@@ -31,8 +31,8 @@ export const getTrackInfoController = async (req: Request, res: Response) => {
 
 export const getAllTracksController = async (req: Request, res: Response) => {
     const { pageNo }: GetAllTracksType = req.validated.params;
-    const tracks = await svc.getAllTracks(pageNo);
-    sendSuccess(res, "Fetched all tracks successfully", 200, { tracks, pageNo });
+    const {tracksWithImage: tracks, totalTracksCount: count} = await svc.getAllTracks(pageNo);
+    sendSuccess(res, "Fetched all tracks successfully", 200, { tracks, pageNo , count});
 }
 
 export const getTracksByGenreController = async (req: Request, res: Response) => {

@@ -40,6 +40,10 @@ export const getAllTracks = async (pageNo: number) => {
     });
 }
 
+export const getTotalTracksCount = async () => {
+    return await prismaClient.track.count();
+}
+
 export const getTodaysListeningHistory = async(userId: string) => {
     const currentTime = new Date();
     const todayStart = new Date(currentTime.setHours(0,0,0));
@@ -131,10 +135,14 @@ export const getAllTracksFromCache = async (pageNo: number) => {
 }
 
 export const setUserPlayCount = async (userId: string, count: string) => {
+    const currentTimeInMs = Date.now();
+    const midnightInMs = new Date (new Date().setHours(24,0,0,0)).getTime();
+    const secondsUntilMidnight = Math.floor((midnightInMs - currentTimeInMs)/1000);
+
     return await redisClient.set(getUserPlayCountKey(userId), count, {
         expiration: {
             type: "EX",
-            value: 60*60
+            value: secondsUntilMidnight
         }
     })
 }
