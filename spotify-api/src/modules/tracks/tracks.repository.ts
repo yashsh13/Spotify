@@ -1,6 +1,6 @@
 import { redisClient } from "../../config/cache/redis.js";
 import prismaClient from "../../config/database/prismaClient.js";
-import type { TrackType, UploadTrackType } from "./tracks.schema.js";
+import type { TrackType, UpdateTrackType, UploadTrackType } from "./tracks.schema.js";
 import { getTrackKey, getUrlKey, getAllTracksKey, getUserPlayCountKey, getGenreTracksKey, getMostPlayedTracksKey } from "../../helper/getKeys.js";
 
 export const findTrackById = async (id: string) => {
@@ -25,6 +25,13 @@ export const findTrackByAudioKey = async (audioFile: string) => {
             audioFile
         }
     });
+}
+
+export const updateTrackById = async (trackId: string, updatedValues: UpdateTrackType) => {
+    return await prismaClient.track.update({
+        where: { id: trackId },
+        data: updatedValues
+    })
 }
 
 export const createTrack = async (trackData: UploadTrackType) => {

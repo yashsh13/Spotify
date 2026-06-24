@@ -2,7 +2,7 @@ import { putObjectUrl, fileExists, getObjectUrl } from "../../helper/s3.js";
 import { v4 as uuidv4 } from "uuid";
 import { getExtension } from "../../helper/constants.js";
 import { ConflictError, ForbiddenError, NotFoundError } from "../../utils/apiError.js";
-import type { UploadTrackType, TrackType } from "./tracks.schema.js";
+import type { UploadTrackType, TrackType, UpdateTrackType } from "./tracks.schema.js";
 import * as repo from "./tracks.repository.js";
 import { Plan } from "../../generated/prisma/enums.js";
 import parsedEnv from "../../config/env.js";
@@ -135,4 +135,12 @@ export const getMostPlayedTracks = async (topCount: number) => {
     const tracksWithImage = await getImageForTracksInArray(tracks);
 
     return tracksWithImage
+}
+
+export const updateTrack = async (trackId: string, updatedValues: UpdateTrackType) => {
+    const track = await repo.findTrackById(trackId);
+    if(!track) throw new NotFoundError("Track with this ID");
+
+    const updatedTrack = await repo.updateTrackById(trackId, updatedValues);
+    return updatedTrack
 }

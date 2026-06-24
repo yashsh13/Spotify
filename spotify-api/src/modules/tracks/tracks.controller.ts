@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType, GetTracksByGenreParamsType, GetTracksByGenreQueryType, MostPlayedType } from "./tracks.schema.js";
+import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType, GetTracksByGenreParamsType, GetTracksByGenreQueryType, MostPlayedType, UpdateTrackType } from "./tracks.schema.js";
 import * as svc from "./tracks.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
 import parsedEnv from "../../config/env.js";
@@ -46,4 +46,11 @@ export const getMostPlayedTracksController = async (req: Request, res: Response)
     const { topCount }: MostPlayedType = req.validated.params;
     const tracks = await svc.getMostPlayedTracks(topCount);
     sendSuccess(res, "Fetched most played tracks successfully", 200, tracks);
+}
+
+export const updateTrackController = async (req: Request, res: Response) => {
+    const updatedValues: UpdateTrackType = req.validated.body;
+    const { trackId }: { trackId: string } = req.validated.params;
+    const track = await svc.updateTrack(trackId, updatedValues);
+    sendSuccess(res, "Track updated successfully", 200, track);
 }
