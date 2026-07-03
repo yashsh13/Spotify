@@ -102,8 +102,8 @@ model ListeningHistory {
   userId   String
   trackId  String
   playedAt DateTime @default(now())
-  user     User     @relation(fields: [userId], references: [id])
-  track    Track    @relation(fields: [trackId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track    Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
 }
 
 //Model Subscription

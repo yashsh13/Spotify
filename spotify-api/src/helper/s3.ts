@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import parsedEnv from "../config/env.js";
 import s3Client from "../config/aws-s3/s3Client.js";
@@ -45,4 +45,13 @@ export const fileExists = async (key: string) => {
         console.log("S3 HeadObject Error:", error);
         throw new NotFoundError("File")
     }
+}
+
+export const deleteObject = async (key: string) => {
+    const command = new DeleteObjectCommand({
+        Bucket: parsedEnv.AWS_BUCKET,
+        Key: key
+    });
+
+    await s3Client.send(command);
 }

@@ -34,6 +34,12 @@ export const updateTrackById = async (trackId: string, updatedValues: UpdateTrac
     })
 }
 
+export const deleteTrackById = async (trackId: string) => {
+    return await prismaClient.track.delete({
+        where: { id: trackId}
+    });
+}
+
 export const createTrack = async (trackData: UploadTrackType) => {
     return await prismaClient.track.create({
         data: trackData

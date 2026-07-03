@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType, GetTracksByGenreParamsType, GetTracksByGenreQueryType, MostPlayedType, UpdateTrackType } from "./tracks.schema.js";
+import type { PreSignedUrlType, UploadTrackType, GetTrackInfoType, GetAllTracksType, GetTracksByGenreParamsType, GetTracksByGenreQueryType, MostPlayedType, UpdateTrackType, DeleteTrackType } from "./tracks.schema.js";
 import * as svc from "./tracks.service.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
 import parsedEnv from "../../config/env.js";
@@ -53,4 +53,11 @@ export const updateTrackController = async (req: Request, res: Response) => {
     const { trackId }: { trackId: string } = req.validated.params;
     const track = await svc.updateTrack(trackId, updatedValues);
     sendSuccess(res, "Track updated successfully", 200, track);
+}
+
+export const deleteTrackController = async (req: Request, res: Response) => {
+    const { trackId }: DeleteTrackType = req.validated.params;
+    const track = await svc.deleteTrack(trackId);
+    sendSuccess(res, "Track deleted successfully", 200, track);
+
 }

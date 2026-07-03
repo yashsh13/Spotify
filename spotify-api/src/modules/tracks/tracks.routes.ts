@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { preSignedUrlSchema, uploadTrackSchema, getTrackInfoSchema, getAllTracksSchema, getTracksByGenreSchema, mostPlayedSchema, updateTrackSchema } from "./tracks.schema.js";
+import { preSignedUrlSchema, uploadTrackSchema, getTrackInfoSchema, getAllTracksSchema, getTracksByGenreSchema, mostPlayedSchema, updateTrackSchema, deleteTrackSchema } from "./tracks.schema.js";
 import validationMiddleware from "../../middlewares/validation.middleware.js";
 import authMiddleware from "../../middlewares/auth.middleware.js";
 import * as ctrl from "./tracks.controller.js";
@@ -15,5 +15,6 @@ tracksRouter.get('/all/:pageNo', authMiddleware, validationMiddleware(getAllTrac
 tracksRouter.get('/genre/:genre', authMiddleware, validationMiddleware(getTracksByGenreSchema), asyncHandler(ctrl.getTracksByGenreController));
 tracksRouter.get('/most-played/:topCount', authMiddleware, validationMiddleware(mostPlayedSchema),asyncHandler(ctrl.getMostPlayedTracksController));
 tracksRouter.patch('/update/:trackId', authMiddleware, adminMiddleware, validationMiddleware(updateTrackSchema), asyncHandler(ctrl.updateTrackController));
+tracksRouter.delete('/delete/:trackId', authMiddleware, adminMiddleware, validationMiddleware(deleteTrackSchema), asyncHandler(ctrl.deleteTrackController));
 
 export default tracksRouter;

@@ -72,6 +72,12 @@ export const updateTrackSchema = z.object({
     })
 })
 
+export const deleteTrackSchema = z.object({
+    params: z.object({
+        trackId: z.uuid()
+    })
+})
+
 export type PreSignedUrlType = z.infer<typeof preSignedUrlSchema.shape.body>;
 export type TrackType = z.infer<typeof trackSchema>;
 export type GetTrackInfoType = z.infer<typeof getTrackInfoSchema.shape.params>;
@@ -79,6 +85,7 @@ export type GetAllTracksType = z.infer<typeof getAllTracksSchema.shape.params>;
 export type GetTracksByGenreParamsType = z.infer<typeof getTracksByGenreSchema.shape.params>;
 export type GetTracksByGenreQueryType = z.infer<typeof getTracksByGenreSchema.shape.query>;
 export type MostPlayedType = z.infer<typeof mostPlayedSchema.shape.params>;
+export type DeleteTrackType = z.infer<typeof deleteTrackSchema.shape.params>;
 
 export type UploadTrackType = {
     name: string,

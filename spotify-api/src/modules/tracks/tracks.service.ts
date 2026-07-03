@@ -1,4 +1,4 @@
-import { putObjectUrl, fileExists, getObjectUrl } from "../../helper/s3.js";
+import { putObjectUrl, fileExists, getObjectUrl, deleteObject } from "../../helper/s3.js";
 import { v4 as uuidv4 } from "uuid";
 import { getExtension } from "../../helper/constants.js";
 import { ConflictError, ForbiddenError, NotFoundError } from "../../utils/apiError.js";
@@ -142,5 +142,20 @@ export const updateTrack = async (trackId: string, updatedValues: UpdateTrackTyp
     if(!track) throw new NotFoundError("Track with this ID");
 
     const updatedTrack = await repo.updateTrackById(trackId, updatedValues);
+    if(track.coverPhoto !== updatedTrack.coverPhoto) await deleteObject(track.coverPhoto);
+    if(track.audioFile !== updatedTrack.audioFile) await deleteObject(track.audioFile);
+    
     return updatedTrack
+}
+
+export const deleteTrack = async (trackId: string) => {
+    const track = await repo.findTrackById(trackId);
+    if(!track) throw new NotFoundError("Track with this ID");
+
+    const deletedTrack = await repo.deleteTrackById(trackId);
+
+    await deleteObject(deletedTrack.coverPhoto);
+    await deleteObject(deletedTrack.audioFile);
+
+    return deletedTrack
 }
