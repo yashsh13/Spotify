@@ -1,9 +1,9 @@
 import axios from "axios";
-
-let accessToken: string | null = null;
+import useAuthStore from "../stores/authStore";
+import { headers } from "next/headers";
 
 const api = axios.create({
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL,
     withCredentials: true
 })
 
@@ -24,6 +24,7 @@ const rejectQueue = (error: any) => {
 }
 
 api.interceptors.request.use((config) => {
+    const accessToken = useAuthStore.getState().accessToken;
     if(accessToken){
         config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -47,21 +48,25 @@ api.interceptors.response.use((response) => response,
             isRefreshing = true;
 
             try {
-                const { data } = await axios.post(`${process.env.BASE_URL}/api/v1/auth/refresh`);
-                accessToken = data.accessToken as string;
-                resolveQueue(accessToken);
+                const { data } = await axios.post(`${process.env.BASE_URL}/api/v1/auth/refresh`,
+                    { headers: { withCredentials: true } }
+                );
+                useAuthStore.getState().setAccessToken(data.accessToken as string)
+
+                const newToken = useAuthStore.getState().accessToken;
+                resolveQueue(newToken as string);
                 return api(orignalRequest);
 
             } catch (refreshError) {
                 rejectQueue(refreshError);
-                accessToken = null;
+                useAuthStore.getState().emptyStore();
+
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
             }
-
-            return Promise.reject(error);
         }
+        return Promise.reject(error);
     }
 )
 
