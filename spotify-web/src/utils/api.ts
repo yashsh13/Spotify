@@ -1,6 +1,5 @@
 import axios from "axios";
 import useAuthStore from "../stores/authStore";
-import { headers } from "next/headers";
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
