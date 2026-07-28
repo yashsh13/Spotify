@@ -1,60 +1,95 @@
-import { Button } from "@/src/components/ui/button"
+'use client'
+
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginType, loginSchema } from "@/src/types/auth/login.types";
+import { Button } from "@/src/components/ui/button";
 import {
   Card,
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/src/components/ui/card"
-import { Input } from "@/src/components/ui/input"
-import { Label } from "@/src/components/ui/label"
+} from "@/src/components/ui/card";
+import { Input } from "@/src/components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/src/components/ui/field";
 
 const LoginForm = () => {
+  const form = useForm<LoginType>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
+
+  const onSubmit = (data: LoginType) => console.log(data);
+
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
+        <CardTitle>Login into your account</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your credentials below to login
         </CardDescription>
         <CardAction>
-            <Button variant="link">Sign Up</Button>
+            <Button variant="link">Sign In</Button>
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password <span className="text-destructive">*</span></Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>
+                    Email <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="example@email.com"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>
+                    Password <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+            <Button type="submit" className="w-full my-5">
+              LogIn
+            </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col">
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
-      </CardFooter>
     </Card>
   )
 }
