@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import parsedEnv from "./config/env.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
@@ -9,6 +10,10 @@ import tracksRouter from "./modules/tracks/tracks.routes.js";
 
 const app: Express = express();
 
+app.use(cors({
+    origin: parsedEnv.FRONTEND_URL,
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 

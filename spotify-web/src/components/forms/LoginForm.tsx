@@ -19,6 +19,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/src/components/ui/field";
+import { useLogin } from "@/src/services/auth/auth.mutation";
 
 const LoginForm = () => {
   const form = useForm<LoginType>({
@@ -29,7 +30,9 @@ const LoginForm = () => {
     }
   });
 
-  const onSubmit = (data: LoginType) => console.log(data);
+  const loginMutation = useLogin();
+
+  const onSubmit = (data: LoginType) => loginMutation.mutate(data);
 
   return (
     <Card className="w-full max-w-sm">
