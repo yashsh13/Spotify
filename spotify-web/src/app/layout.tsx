@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import ReactQueryClientProvider from "../providers/ReactQueryClientProvider";
 import { cn } from "@/src/lib/utils";
+import { Toaster } from "@/src/components/ui/toast";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ReactQueryClientProvider>
           {children}
+          <Toaster />
         </ReactQueryClientProvider>
       </body>
     </html>

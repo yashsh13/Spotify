@@ -20,6 +20,7 @@ import {
   FieldLabel,
 } from "@/src/components/ui/field";
 import { useLogin } from "@/src/services/auth/auth.mutation";
+import { Spinner } from "../ui/spinner";
 
 const LoginForm = () => {
   const form = useForm<LoginType>({
@@ -88,9 +89,14 @@ const LoginForm = () => {
               )}
             />
           </FieldGroup>
-            <Button type="submit" className="w-full my-5">
+            {loginMutation.isPending?
+            (<Button type="submit" className="w-full my-5" disabled>
               LogIn
-            </Button>
+              <Spinner data-icon="inline-start" />
+            </Button>):
+            (<Button type="submit" className="w-full my-5">
+              LogIn
+            </Button>)}
         </form>
       </CardContent>
     </Card>
