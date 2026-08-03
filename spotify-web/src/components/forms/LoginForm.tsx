@@ -4,21 +4,9 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginType, loginSchema } from "@/src/types/auth/login.types";
 import { Button } from "@/src/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/src/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/src/components/ui/field";
 import { useLogin } from "@/src/services/auth/auth.mutation";
 import { Spinner } from "../ui/spinner";
 

@@ -13,11 +13,11 @@ export const apiErrorDisplay = (error: Error) => {
         toast.add({
             type: "error",
             title: error.response?.data.message
-        })
+        });
     } else {
         toast.add({
             type: "error",
             title: "Something went wrong"
-        })
+        });
     }
 };

@@ -1,68 +1,132 @@
-import { Button } from "@/src/components/ui/button"
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card"
-import { Input } from "@/src/components/ui/input"
-import { Label } from "@/src/components/ui/label"
+'use client'
+
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUpSchema, SignupType } from "@/src/types/auth/signup.types";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { Button } from "@/src/components/ui/button";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/src/components/ui/field";
+import { Input } from "@/src/components/ui/input";
+import { useSignup } from "@/src/services/auth/auth.mutation";
+import { Spinner } from "@/src/components/ui/spinner";
 
 const SignupForm = () => {
+  const form = useForm<SignupType>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: ""
+    }
+  });
+
+  const signupMutation = useSignup();
+
+  const onSubmit = (data: SignupType) => signupMutation.mutate(data);
+
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Create your account</CardTitle>
         <CardDescription>
-          Enter your details below to create your account
+          Enter your details below to SignUp
         </CardDescription>
         <CardAction>
             <Button variant="link">Log In</Button>
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Username <span className="text-destructive">*</span></Label>
-              <Input
-                id="username"
-                placeholder="username"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password <span className="text-destructive">*</span></Label>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Confirm Password <span className="text-destructive">*</span></Label>
-              </div>
-              <Input id="confirm-password" type="password" required />
-            </div>
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller 
+              name="email"
+              control={form.control}
+              render ={({ field, fieldState}) => (
+                <Field data-invalid={fieldState.invalid} >
+                  <FieldLabel>
+                    Email <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="example@email.com"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller 
+              name="username"
+              control={form.control}
+              render ={({ field, fieldState}) => (
+                <Field data-invalid={fieldState.invalid} >
+                  <FieldLabel>
+                    Username <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller 
+              name="password"
+              control={form.control}
+              render ={({ field, fieldState}) => (
+                <Field data-invalid={fieldState.invalid} >
+                  <FieldLabel>
+                    Password <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller 
+              name="confirmPassword"
+              control={form.control}
+              render ={({ field, fieldState}) => (
+                <Field data-invalid={fieldState.invalid} >
+                  <FieldLabel>
+                    Confirm Password <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+          {signupMutation.isPending?
+            (<Button type="submit" className="w-full my-5" disabled>
+              SignUp
+              <Spinner data-icon="inline-start" />
+            </Button>):
+            (<Button type="submit" className="w-full my-5">
+              Signup
+            </Button>)}
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col">
-        <Button type="submit" className="w-full">
-          Signup
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

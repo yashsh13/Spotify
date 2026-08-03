@@ -33,7 +33,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((response) => response,
     async (error) => {
         const orignalRequest = error.config;
-        if(error.response.status === 401 && !orignalRequest._retry && error.config.url !== '/api/v1/auth/login'){
+        if(error.response.status === 401 && !orignalRequest._retry && error.config.url !== '/api/v1/auth/login' && error.config.url !== '/api/v1/auth/verify-otp'){
             if(isRefreshing) {
                 return new Promise((resolve,reject) => {
                     queue.push({ resolve, reject});
