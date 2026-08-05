@@ -96,6 +96,7 @@ export const refresh = async (incomingRefreshToken: string) => {
 
     const decoded = verifyRefreshToken(incomingRefreshToken);
     if(!decoded) throw new UnauthorizedError("Refresh Token Expired");
+
     const userId = decoded.userId;
     const userRole = decoded.role;
     const userPlan = decoded.plan;

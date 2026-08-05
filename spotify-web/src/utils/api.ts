@@ -39,6 +39,7 @@ api.interceptors.response.use((response) => response,
                     queue.push({ resolve, reject});
                 }).then((newToken) => {
                     orignalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    console.log(orignalRequest.headers);
                     return api(orignalRequest)
                 })
             }
@@ -47,10 +48,11 @@ api.interceptors.response.use((response) => response,
             isRefreshing = true;
 
             try {
-                const { data } = await axios.post(`${process.env.BASE_URL}/api/v1/auth/refresh`,
-                    { headers: { withCredentials: true } }
+                const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/refresh`,
+                    {},
+                    { withCredentials: true } 
                 );
-                useAuthStore.getState().setAccessToken(data.accessToken as string)
+                useAuthStore.getState().setAccessToken(data.data.accessToken as string)
 
                 const newToken = useAuthStore.getState().accessToken;
                 resolveQueue(newToken as string);
