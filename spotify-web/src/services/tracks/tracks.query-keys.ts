@@ -1,3 +1,4 @@
 export const queryKeys = {
-    all: () => ['tracks']
+    all: () => ['tracks'],
+    id: (id: string) => ['tracks', id]
 } as const;

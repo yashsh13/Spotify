@@ -12,7 +12,7 @@ const TrackStrip = ({ title ,allTracks}: TrackStripProps) => {
             <h1 className="underline cursor-pointer text-lg">{title} -&gt;</h1>
             <div className="flex flex-wrap gap-10 mt-7">
                 {allTracks.map((track: TrackType) => {
-                    return <TrackCard key={track.id} trackName={track.name} artists={track.artistName} image={track.coverImageUrl} />
+                    return <TrackCard key={track.id} id ={track.id} trackName={track.name} artists={track.artistName} image={track.coverImageUrl} />
                 })}
             </div>
         </div>

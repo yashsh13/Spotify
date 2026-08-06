@@ -6,5 +6,6 @@ export type TrackType = {
     duration: number,
     genre: ["hip-hop","classical"],
     createdAt: string,
-    coverImageUrl: string
+    coverImageUrl: string,
+    audioUrl?: string
 }
