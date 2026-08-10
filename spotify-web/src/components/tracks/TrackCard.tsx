@@ -2,6 +2,7 @@ import Image from 'next/image';
 import useModalStore from '@/src/stores/modalStore';
 import { getTrackByIdQuery } from '@/src/services/tracks/tracks.query';
 import useTrackStore from '@/src/stores/trackStore';
+import usePlayerStore from '@/src/stores/playerStore';
 
 export interface TrackCardProps {
   id: string,
@@ -11,17 +12,20 @@ export interface TrackCardProps {
 }
 
 const TrackCard = ({ id, image, trackName, artists }: TrackCardProps) => {
-  const setModalState = useModalStore((state) => state.setModalOpen);
-  const setTrack = useTrackStore((state) => state.setTrack);
-  const { data, refetch, isFetching } = getTrackByIdQuery(id);
+  const setModalState = useModalStore( state => state.setModalOpen);
+  const setTrack = useTrackStore( state => state.setTrack);
+  const { setAudioElement, audioElement, setIsPlaying, setCurrentPlayTime } = usePlayerStore( state => state);
+  const { refetch } = getTrackByIdQuery(id);
 
   const playTrack = async () => {
       const { data: freshData } = await refetch();
-      console.log(freshData?.data.data);
       setTrack(freshData?.data.data);
 
-      const audio = new Audio(freshData?.data.data.audioUrl);
-      audio.play();
+      if(!audioElement) setAudioElement(new Audio(freshData?.data.data.audioUrl));
+      else audioElement.setAttribute("src", freshData?.data.data.audioUrl);
+
+      setIsPlaying(true);
+      setCurrentPlayTime(0);
       setModalState(true);
     }
 

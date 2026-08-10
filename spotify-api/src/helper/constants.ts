@@ -16,6 +16,6 @@ export const getExtension = (type: string) => {
 }
 
 export const genre = [
-    "hip-hop",
-    "classical"
+    "hindi",
+    "english"
 ] as const;

@@ -11,6 +11,7 @@ import {
 } from "@/src/components/ui/navigation-menu";
 import { ListItem } from "@/src/components/ui/list-item";
 import Link from "next/link";
+import { genres } from "@/src/lib/constants";
 
 const NavMenu = () => {
     return (
@@ -23,8 +24,9 @@ const NavMenu = () => {
                     <NavigationMenuTrigger>Genre</NavigationMenuTrigger>
                     <NavigationMenuContent>
                         <ul className="w-22">
-                            <ListItem goto="/genre/hip-hop" text="Hip-Hop" />
-                            <ListItem goto="/genre/classical" text="Classical" />
+                            {genres.map((genre) => (
+                                <ListItem goto={`/genre/${genre.value}`} text={genre.label} />
+                            ))}
                         </ul>
                     </NavigationMenuContent>
                 </NavigationMenuItem>

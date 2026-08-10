@@ -4,10 +4,43 @@ import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
 import useModalStore from "@/src/stores/modalStore";
 import useTrackStore from "@/src/stores/trackStore";
 import Image from "next/image";
+import usePlayerStore from "@/src/stores/playerStore";
+import { useEffect, useState } from "react";
+
 
 const PlayerModal = () => {
     const setModalState = useModalStore((state) => state.setModalOpen);
     const { name, artistName, genre, duration, coverImageUrl } = useTrackStore((state) => state);
+    const { audioElement, isPlaying, setIsPlaying, setCurrentPlayTime, currentPlayTime } = usePlayerStore( state => state);
+    const [sliderValue, setSliderValue ] = useState(0);
+
+    useEffect(() => {
+        if(isPlaying) {
+            audioElement?.play();
+            return
+        }
+        audioElement?.pause()
+    }, [isPlaying]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if(isPlaying){
+                setCurrentPlayTime(currentPlayTime as number + 1);
+                onSliderChange(currentPlayTime);
+            }
+        }, audioElement?.duration);
+
+     return () => clearInterval(interval)
+    }, [currentPlayTime, isPlaying])
+
+    const onSliderChange = (value: number | readonly number[]) => {
+        setSliderValue(Array.isArray(value) ? (value[0] ?? 50) : value);
+    }
+
+    const onUserSlide = (value: number | readonly number[]) => {
+        setCurrentPlayTime(value as number);
+        audioElement!.currentTime = (audioElement?.duration as number/1000)*(value as number)
+    }
     
     return (
         <div className="fixed z-2 h-screen w-screen">
@@ -33,19 +66,23 @@ const PlayerModal = () => {
                     </div>
                 </div>
             </div>
-            <div className="h-2/8 border">
+            <div className="h-2/8 border bg-white">
                 <div className="py-7 px-5">
                     <Slider
-                    defaultValue={[75]}
-                    max={100}
+                    value={sliderValue}
+                    max={1000}
                     step={1}
                     className="mx-auto w-full"
+                    onValueChange={onSliderChange}
+                    onValueCommitted={onUserSlide}
                     />
                 </div>
                 <div className="flex items-center justify-center gap-2 mb-4">
                     <SkipBack size={30} className="cursor-pointer"/>
-                    <Pause size={30} className="cursor-pointer"/>
-                    <SkipForward size={30} className="cursor-pointer"/>
+                    {isPlaying ? 
+                    <Pause size={30} className="cursor-pointer" onClick={() => setIsPlaying(false)}/> : 
+                    <Play size={30} className="cursor-pointer" onClick={() => setIsPlaying(true)}/> }
+                    <SkipForward size={30} className="cursor-pointer" />
                 </div>
             </div>
         </div>
