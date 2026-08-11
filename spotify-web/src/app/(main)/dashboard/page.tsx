@@ -2,7 +2,9 @@ import DashboardBody from "@/src/components/dashboard/DashboardBody";
 
 const Dashboard = () => {
     return (
-        <DashboardBody />
+        <div className="pb-5">
+           <DashboardBody />
+        </div>
     )
 }
 

@@ -16,3 +16,17 @@ export const getTrackByIdQuery = (id: string) => {
         enabled: false
     })
 }
+
+export const getMostPlayedTracksQuery = (pageNo: string) => {
+    return useQuery({
+        queryKey: queryKeys.mostPlayed(pageNo),
+        queryFn: () => apiCall.getMostPlayedTracks(pageNo)
+    })
+}
+
+export const getTracksByGenreQuery = (genre: string, pageNo: string) => {
+    return useQuery({
+        queryKey: queryKeys.genre(genre, pageNo),
+        queryFn: () => apiCall.getTracksByGenre(genre, pageNo)
+    })
+}

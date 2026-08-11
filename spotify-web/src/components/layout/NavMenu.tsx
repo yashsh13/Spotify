@@ -25,7 +25,7 @@ const NavMenu = () => {
                     <NavigationMenuContent>
                         <ul className="w-22">
                             {genres.map((genre) => (
-                                <ListItem goto={`/genre/${genre.value}`} text={genre.label} />
+                                <ListItem goto={`/genre/${genre.value}`} text={genre.label} key={genre.value}/>
                             ))}
                         </ul>
                     </NavigationMenuContent>

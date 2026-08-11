@@ -30,4 +30,12 @@ export const uploadTrack = (body: CreateTrackType) => {
     return api.post('/api/v1/tracks/upload',
         body
     );
-} 
+}
+
+export const getMostPlayedTracks = (pageNo: string) => {
+    return api.get(`/api/v1/tracks/most-played/${pageNo}`);
+}
+
+export const getTracksByGenre = (genre: string, pageNo: string) => {
+    return api.get(`/api/v1/tracks/genre/${genre}?pageNo=${pageNo}`)
+}
